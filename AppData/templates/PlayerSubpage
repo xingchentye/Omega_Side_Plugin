@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8"> 
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- 新 Bootstrap5 核心 CSS 文件 -->
+    <link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/5.1.1/css/bootstrap.min.css">
+    <!-- 最新的 Bootstrap5 核心 JavaScript 文件 -->
+    <script src="https://cdn.staticfile.org/twitter-bootstrap/5.1.1/js/bootstrap.bundle.min.js"></script>
+    <link rel="stylesheet" type="text/css" href= " {{url_for('static', filename = './layui/css/layui.css')}}">
+    <script src="{{ url_for('static',filename='./layui/layui.js') }}"></script>
+    <script src="//cdn.staticfile.org/jquery/3.6.0/jquery.min.js"></script>
+  </head>
+<body>
+    <div>
+        <div style="padding: 16px;"> 
+            <table class="layui-hide" id="test" lay-filter="test"></table>
+          </div>
+          <script type="text/html" id="toolbarDemo">
+            <div class="layui-btn-container">
+              <button class="layui-btn layui-btn-sm layui-bg-blue" id="reloadTest">
+                重载测试 
+                <i class="layui-icon layui-icon-down layui-font-12"></i>
+              </button>
+            </div>
+          </script>
+          <script type="text/html" id="barDemo">
+            <div class="layui-clear-space">
+              <a class="layui-btn layui-btn-xs" lay-event="tick">踢出</a>
+              <a class="layui-btn layui-btn-xs" lay-event="mbs">管理</a>
+            </div>
+          </script>  
+          <script>
+          layui.use(['table', 'dropdown'], function(){
+            var table = layui.table;
+            var dropdown = layui.dropdown;
+            
+            // 创建渲染实例
+            table.render({
+              elem: '#test'
+              ,url:'/api/{{token}}/player' // 此处为静态模拟数据，实际使用时需换成真实接口
+              ,height: 'full-35' // 最大高度减去其他容器已占有的高度差
+              ,css: [ // 重设当前表格样式
+                '.layui-table-tool-temp{padding-right: 145px;}'
+              ].join('')
+              ,cellMinWidth: 80
+              ,totalRow: true // 开启合计行
+              ,page: true
+              ,cols: [[
+                {type: 'checkbox', fixed: 'left'}
+                ,{field:'xuid', fixed: 'left', width:80, title: 'UUID', sort: true, totalRowText: '合计：'}
+                ,{field:'username', width:80, title: '用户'}
+                ,{fixed: 'right', title:'操作', width: 134, minWidth: 125, toolbar: '#barDemo'}
+              ]]
+              ,done: function(){
+                // 重载测试
+                dropdown.render({
+                  elem: '#reloadTest' // 可绑定在任意元素中，此处以上述按钮为例
+                  ,data: [{
+                    id: 'reload',
+                    title: '重载'
+                  },{
+                    id: 'reload-deep',
+                    title: '重载 - 参数叠加'
+                  },{
+                    id: 'reloadData',
+                    title: '仅重载数据'
+                  },{
+                    id: 'reloadData-deep',
+                    title: '仅重载数据 - 参数叠加'
+                  }]
+                });
+              }
+            });
+            
+           
+            // 触发表格复选框选择
+            table.on('checkbox(test)', function(obj){
+              console.log(obj)
+            });
+           
+            // 触发表格单选框选择
+            table.on('radio(test)', function(obj){
+              console.log(obj)
+            });
+            
+                        // 监听行工具栏按钮的点击事件
+            table.on('tool(test)', function(obj){
+                var name = obj.data;
+                // 踢出按钮被点击
+                $.ajax({
+                url: '/api/{{token}}/game_tick',
+                type: 'POST',
+                data:name,
+                success: function(data) {
+                    // 请求成功，根据返回的结果进行提示
+                    if (data.success == true) {
+                    alert('踢出成功');
+                    } else{
+                    alert('踢出失败');
+                    }
+                },
+                error: function() {
+                    // 请求失败
+                    alert('网络错误，请重试！');
+                }
+                });
+
+        });
+        });
+          </script>
+    </div>
+</body>
