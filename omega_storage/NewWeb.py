@@ -1,1 +1,0 @@
-from omega_python_plugins.Web_New import main
