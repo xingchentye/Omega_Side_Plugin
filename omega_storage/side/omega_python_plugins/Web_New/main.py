@@ -16,31 +16,31 @@ class MainCore (object):
     def __init__(self) -> None:
         self.AppConfig:dict = {}
         self.database = {}
-        self.Log = Logging.Logging_Core(os.path.basename(__file__))
+        self.Log = Logging.Logging_Core(os.path。basename(__file__))
         omega.add_plugin(plugin=self.get_omega_api)
         omega.run(addr=None)
         self.ConfigFilePath:str = "AppData/AppConfig.json"
         self.TmpFilePath:str = "AppData/AppTmp.tmp"
         self.WebUserInitPath = "AppData/WebUserInit"
-        if not os.path.exists(self.ConfigFilePath):
-            self.Log.Error(f"{self.ConfigFilePath}，文件不存在,请确定下载到的文件完整!")
+        if not os.path。exists(self.ConfigFilePath):
+            self.Log。Error(f"{self.ConfigFilePath}，文件不存在,请确定下载到的文件完整!")
             input();exit(1)
         else:
             tmp_1 = json.load(open(file=self.ConfigFilePath,mode="r"))
             if len(tmp_1) == 0:
-                self.Log.Error(f"{self.ConfigFilePath}，文件已损坏,请重新下载该文件!")
+                self.Log。Error(f"{self.ConfigFilePath}，文件已损坏,请重新下载该文件!")
                 input();exit(1)
             else:
                 self.AppConfig = tmp_1
                 tmp_2 = self.AppConfig["database_folder"]
-            if not os.path.exists(tmp_2):
+            if not os.path。exists(tmp_2):
                 os.makedirs(tmp_2)
-            if not os.path.exists(f"{tmp_2}/AppDataBase_Main.db"):
-                for i in self.AppConfig["databases"]:
+            if not os.path。exists(f"{tmp_2}/AppDataBase_Main.db"):
+                for i 在 self.AppConfig["databases"]:
                     tmp_1 = self.AppConfig["database_folder"]
-                    self.Log.Info(f"创建/连接数据库文件,{tmp_1}/{i}")
+                    self.Log。Info(f"创建/连接数据库文件,{tmp_1}/{i}")
                     if i == "AppDataBase_Web.db":
-                        sqlite3.connect(f"{tmp_1}/{i}").cursor().execute('''CREATE TABLE main (
+                        sqlite3.connect(f"{tmp_1}/{i}")。cursor()。execute('''CREATE TABLE main (
                                                                         id INTEGER PRIMARY KEY AUTOINCREMENT,
                                                                         username TEXT,
                                                                         password TEXT
@@ -48,7 +48,7 @@ class MainCore (object):
                     else:
                         sqlite3.connect(f"{tmp_1}/{i}")
                     self.database[i] = sqlite3.connect(f"{tmp_1}/{i}")
-        if not os.path.exists(self.WebUserInitPath):
+        if not os.path。exists(self.WebUserInitPath):
             self.WebUserInit:bool = False
         else:
             self.WebUserInit:bool = True
@@ -56,29 +56,29 @@ class MainCore (object):
     def get_omega_api(self,api:API):
         self.api=api
         Core.main()
-        Core.Web_Core.Start() 
+        Core.Web_Core。Start() 
 
     def main (self):
         self.Tmp = Tmp(self.TmpFilePath)
         self.Web_Core = Web_Core()
-        schedule.every().hour.do(self.Web_Core.usertokenlist_Clean)
+        schedule.every()。hour。do(self.Web_Core。usertokenlist_Clean)
         schedule.run_pending()
 class Tmp (object):
     def __init__(self,TmpFilePath) -> None:
-        if os.path.exists(f"{TmpFilePath}"):
+        if os.path。exists(f"{TmpFilePath}"):
             os.remove(f"{TmpFilePath}")
         self.TmpData = open(file=f"{TmpFilePath}",mode="wb+")
     def WriteJson (self,Json):
-        self.TmpData.write(base64.b64encode(json.dumps(Json).encode()))
+        self.TmpData。write(base64.b64encode(json.dumps(Json)。encode()))
     def ReadJson (self):
-        self.TmpData.seek(0)  # 指针回到文件头
-        data = self.TmpData.read()
-        data = base64.b64decode(data).decode()
+        self.TmpData。seek(0)  # 指针回到文件头
+        data = self.TmpData。read()
+        data = base64.b64decode(data)。decode()
         return json.loads(data)
         
 class Web_Core (object):
     def __init__(self):
-        self.WebConfig = {"host": "127.0.0.1", "port": 24012, "debug": True}
+        self.WebConfig = {"host": "127.0.0.1"， "port": 24012， "debug": True}
         self.WebApp = flask.Flask(
             "Web_NewWeb",
             static_folder=Core.AppConfig["static_folder"],
@@ -296,12 +296,6 @@ class Web_Core (object):
     def usertokenlist_Clean (self):
         self.usertoken_12 = {}
 
-    def on_mc_packet(self,packet):
-        if not packet["id"] in ["IDSetTime","IDActorEcent","IDLevelEvent","IDSetTitle","IDUpdateBlock","IDUpdateBlock",
-                             "IDUpdateAttributes","IDLevelSoundEvent","IDMobEffect","IDSetActorMotion","IDMoveActorDelta",
-                             "IDCommandOutput","IDGameRulesChanged","IDSetActorData","IDActorEvent"]:
-            print(f"类型{packet.id}/{packet}")
-
 
     def BuildInitJson(self,token):
         return {
@@ -326,19 +320,6 @@ class Web_Core (object):
                         "icon": "fa fa-window-maximize",
                         "target": "_self"
                         }
-                    ]},
-                    {
-                    "title": "Plugin(test)",
-                    "icon": "fa fa-window-maximize",
-                    "href": "",
-                    "target": "_self",
-                    "child": [
-                        {
-                        "title": "群服互通",
-                        "href": f"/{token}/page/player",
-                        "icon": "fa fa-window-maximize",
-                        "target": "_self"
-                        }
                     ]}
                 ]}
     def Packet(self):
@@ -355,25 +336,6 @@ class Web_Core (object):
                         "LoginTime":data["LoginTime"],
                         "CommandPermissionLevel":data["CommandPermissionLevel"]
                     }
-                    if data["Entity"] != None:
-                        if data["Entity"]["Slots"] != {}:
-                            Slots = data["Entity"]["Slots"]
-                            for i in Slots:
-                                self.PlayerSlots[data["Username"]]={str(i):{
-                                    "NetworkID":Slots[str(i)]["NewItem"]["Stack"]["NetworkID"]
-                                                                            }}
-                            print(self.PlayerSlots)
-                            # for i in range(SL):
-                            #     self.PlayerSlots[str(i)] = {
-                            #         Slots[str(i-1)] = Slots[str(i)]
-                            #     }
-                            # for i in Slots:
-                            #     self.PlayerSlots[]
-                                # lastslot=Entity["LastPacketSlot"]
-                                # NewItem = Slots[str(lastslot)]["NewItem"]
-                                # Stack = NewItem["Stack"]
-                                # 手持ID = Stack["NetworkID"]
-                                # 手持数量 = Stack["Count"]
                 time.sleep(30)
         threading.Thread(target=PlayersByEntity).start()
 Core = MainCore()
